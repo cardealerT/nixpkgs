@@ -38,7 +38,22 @@ stdenv.mkDerivation (finalAttrs: {
     ln -s $out/libexec/kraken2/kraken2-build $out/bin
     ln -s $out/libexec/kraken2/kraken2-inspect $out/bin
     ln -s $out/libexec/kraken2/k2 $out/bin
-  '';
+    for file in $out/libexec/kraken2/* ; do
+      if [ -x "$file"] ; then
+        wrapProgram "$file" \
+          --prefix PATH : $out/libexec/kraken2:${
+            lib.makeBinPath [
+              wget
+              perl
+              rsync 
+              llvmPackages.openmp
+              zlib
+              python3
+            ] 
+          }
+        fi
+      done
+    '';
 
   meta = {
     description = "The second version of the Kraken taxonomic sequence classification system.";
